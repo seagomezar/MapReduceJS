@@ -1,0 +1,35 @@
+<html>
+    <head></head>
+    <body>
+        <script>
+            let nodo1 = new Worker('nodo1.js');
+            let nodo2 = new Worker('nodo2.js');
+            fetch('https://data.cityofnewyork.us/api/views/25th-nujf/rows.json')
+            .then((response)=>response.json())
+            .then(unaFuncion);
+
+            function unaFuncion(params) {
+                var misDaticos = params.data;
+                var miPrimerChunksito = misDaticos.slice(1000, 2010);
+                var miSegundoChunksito = misDaticos.slice(10000, 11010);
+                nodo1.postMessage(miPrimerChunksito);
+                nodo1.addEventListener('message', otraFuncion);
+                nodo2.postMessage(miSegundoChunksito);
+                nodo2.addEventListener('message', otraFuncion);
+
+                var contadorTotal = 0;
+                var numeroDeVecesQueInvoqueLaFuncion = 0;
+                function otraFuncion(params) {
+                    contadorTotal = contadorTotal + 
+                                    params.data.nombresQueEmpiezanConA;
+                    numeroDeVecesQueInvoqueLaFuncion++;
+                    if (numeroDeVecesQueInvoqueLaFuncion == 2){
+                        console.log({'nombresAhoraSiTotales': contadorTotal});
+                        return {'nombresAhoraSiTotales': contadorTotal};
+                    }
+                    
+                }
+            }
+        </script>
+    </body>
+</html>
